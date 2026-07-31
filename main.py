@@ -1,8 +1,61 @@
 # reloading the server : uvicorn main:app --reload
 # activating the environment : .\venv\Scripts\Activate.ps1
+import sqlite3
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 app = FastAPI()
+
+def get_connection():
+    return sqlite3.connect("tasks.db")
+
+def create_tables():
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY,
+        title TEXT NOT NULL,
+        done BOOLEAN NOT NULL
+    )
+    """)
+
+    connection.commit()
+    connection.close()
+
+def insert_initial_tasks():
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM tasks")
+
+    count = cursor.fetchone()[0]
+
+    if count == 0:
+
+        cursor.execute(
+            "INSERT INTO tasks (title, done) VALUES (?, ?)",
+            ("Study FastAPI", False)
+        )
+
+        cursor.execute(
+            "INSERT INTO tasks (title, done) VALUES (?, ?)",
+            ("Exercise", True)
+        )
+
+        cursor.execute(
+            "INSERT INTO tasks (title, done) VALUES (?, ?)",
+            ("Read book", False)
+        )
+
+    connection.commit()
+    connection.close()    
+
+create_tables()
+insert_initial_tasks()
+
 class TaskCreate(BaseModel):
     title: str
 
@@ -13,7 +66,7 @@ tasks = [
     {
         "id": 1,
         "title": "Study FastAPI",
-        "done": False
+        "done": True
     },
     {
         "id": 2,
@@ -23,11 +76,6 @@ tasks = [
     {
         "id": 3,
         "title": "Read book",
-        "done": False
-    },
-    {
-        "id": 4,
-        "title": "Practice API",
         "done": False
     }
 ]
@@ -56,10 +104,11 @@ def get_task(task_id: int):
         if task["id"] == task_id:
             return task
 
-        raise HTTPException(
+    raise HTTPException(
     status_code=404,
     detail="Task not found"
 )
+    
 @app.post("/tasks", status_code=201)
 def create_task(task: TaskCreate):
 
