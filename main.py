@@ -155,15 +155,24 @@ def create_task(task: TaskCreate):
             detail="Title cannot be empty"
         )
 
-    new_task = {
-        "id": len(tasks) + 1,
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "INSERT INTO tasks (title, done) VALUES (?, ?)",
+        (task.title, False)
+    )
+
+    task_id = cursor.lastrowid
+
+    connection.commit()
+    connection.close()
+
+    return {
+        "id": task_id,
         "title": task.title,
         "done": False
     }
-
-    tasks.append(new_task)
-
-    return new_task
 
 @app.put("/tasks/{task_id}")
 def update_task(task_id: int, task: TaskUpdate):
