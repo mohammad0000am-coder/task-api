@@ -177,18 +177,42 @@ def create_task(task: TaskCreate):
 @app.put("/tasks/{task_id}")
 def update_task(task_id: int, task: TaskUpdate):
 
-    for item in tasks:
-        if item["id"] == task_id:
+    connection = get_connection()
+    cursor = connection.cursor()
 
-            item["title"] = task.title
-            item["done"] = task.done
-
-            return item
-
-    raise HTTPException(
-        status_code=404,
-        detail="Task not found"
+    cursor.execute(
+        """
+        UPDATE tasks
+        SET title = ?, done = ?
+        WHERE id = ?
+        """,
+        (task.title, task.done, task_id)
     )
+
+    if cursor.rowcount == 0:
+        connection.close()
+
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    connection.commit()
+
+    cursor.execute(
+        "SELECT * FROM tasks WHERE id = ?",
+        (task_id,)
+    )
+
+    row = cursor.fetchone()
+
+    connection.close()
+
+    return {
+        "id": row[0],
+        "title": row[1],
+        "done": bool(row[2])
+    }
 
 @app.delete("/tasks/{task_id}", status_code=204)
 def delete_task(task_id: int):
