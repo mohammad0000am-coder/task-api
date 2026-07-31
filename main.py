@@ -53,6 +53,28 @@ def insert_initial_tasks():
     connection.commit()
     connection.close()    
 
+def get_all_tasks():
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM tasks")
+
+    rows = cursor.fetchall()
+
+    connection.close()
+
+    tasks = []
+
+    for row in rows:
+        tasks.append({
+            "id": row[0],
+            "title": row[1],
+            "done": bool(row[2])
+        })
+
+    return tasks
+
 create_tables()
 insert_initial_tasks()
 
@@ -89,7 +111,7 @@ def root():
 
 @app.get("/tasks")
 def get_tasks():
-    return tasks
+    return get_all_tasks()
 
 @app.get("/health")
 def health():
@@ -100,14 +122,29 @@ def health():
 @app.get("/tasks/{task_id}")
 def get_task(task_id: int):
 
-    for task in tasks:
-        if task["id"] == task_id:
-            return task
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT * FROM tasks WHERE id = ?",
+        (task_id,)
+    )
+
+    row = cursor.fetchone()
+
+    connection.close()
+
+    if row:
+        return {
+            "id": row[0],
+            "title": row[1],
+            "done": bool(row[2])
+        }
 
     raise HTTPException(
-    status_code=404,
-    detail="Task not found"
-)
+        status_code=404,
+        detail="Task not found"
+    )
     
 @app.post("/tasks", status_code=201)
 def create_task(task: TaskCreate):
