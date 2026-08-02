@@ -23,7 +23,7 @@ def create_tables():
 
     connection.commit()
     connection.close()
-
+    
 def insert_initial_tasks():
 
     connection = get_connection()
@@ -84,23 +84,7 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     title: str
     done: bool
-tasks = [
-    {
-        "id": 1,
-        "title": "Study FastAPI",
-        "done": True
-    },
-    {
-        "id": 2,
-        "title": "Exercise",
-        "done": True
-    },
-    {
-        "id": 3,
-        "title": "Read book",
-        "done": False
-    }
-]
+
 @app.get("/")
 def root():
     return {
@@ -177,6 +161,11 @@ def create_task(task: TaskCreate):
 @app.put("/tasks/{task_id}")
 def update_task(task_id: int, task: TaskUpdate):
 
+    if not task.title.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Title cannot be empty"
+        )
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -217,14 +206,23 @@ def update_task(task_id: int, task: TaskUpdate):
 @app.delete("/tasks/{task_id}", status_code=204)
 def delete_task(task_id: int):
 
-    for index, item in enumerate(tasks):
-        if item["id"] == task_id:
+    connection = get_connection()
+    cursor = connection.cursor()
 
-            tasks.pop(index)
-
-            return
-
-    raise HTTPException(
-        status_code=404,
-        detail="Task not found"
+    cursor.execute(
+        "DELETE FROM tasks WHERE id = ?",
+        (task_id,)
     )
+
+    if cursor.rowcount == 0:
+        connection.close()
+
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    connection.commit()
+    connection.close()
+
+    return
