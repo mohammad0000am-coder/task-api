@@ -93,19 +93,20 @@ uvicorn main:app --reload
 | PUT | `/tasks/{task_id}` | Updates an existing task |
 | DELETE | `/tasks/{task_id}` | Deletes a task |
 
-### Example SQL Query
-```bash
+## Example SQL Query
+
+```sql
 SELECT * FROM tasks WHERE done = 1;
 ```
+
 This query returns all completed tasks.
 
-### Database Screenshot
+## Database Screenshot
 
 The database was inspected using DB Browser for SQLite.
 
 ![Database Screenshot](images/database.png)
 
-```markdown
 ## Error Handling
 
 The API handles invalid requests and unknown task IDs:
@@ -113,11 +114,16 @@ The API handles invalid requests and unknown task IDs:
 - `400 Bad Request` is returned for invalid input.
 - `404 Not Found` is returned when a task does not exist.
 
-### API Documentation
+## API Documentation
+
 After running the server, open:
-```bash
+
+```text
 http://127.0.0.1:8000/docs
 ```
+
 This opens the interactive Swagger UI documentation.
-### Author
+
+## Author
+
 Mohammad
