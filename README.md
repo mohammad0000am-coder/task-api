@@ -83,20 +83,15 @@ Activate environment:
 
 Windows:
 ```bash
-
 .\venv\Scripts\Activate.ps1
 ```
 Install dependencies:
-```bash
 
 ```bash
 pip install -r requirements.txt
 ```
 
 Run the server:
-
-Run server:
-```bash
 
 ```bash
 uvicorn main:app --reload
