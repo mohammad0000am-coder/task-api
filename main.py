@@ -129,7 +129,7 @@ def get_task(task_id: int):
         status_code=404,
         detail="Task not found"
     )
-    
+
 @app.post("/tasks", status_code=201)
 def create_task(task: TaskCreate):
 

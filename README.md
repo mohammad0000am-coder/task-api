@@ -75,14 +75,28 @@ Activate it (Windows):
 ```powershell
 .\venv\Scripts\Activate.ps1
 ```
+Create virtual environment:
+```bash
+python -m venv venv
+```
+Activate environment:
 
+Windows:
+```bash
+
+.\venv\Scripts\Activate.ps1
+```
 Install dependencies:
+```bash
 
 ```bash
 pip install -r requirements.txt
 ```
 
 Run the server:
+
+Run server:
+```bash
 
 ```bash
 uvicorn main:app --reload
@@ -123,3 +137,17 @@ http://127.0.0.1:8000/docs
 ## Author
 
 Mohammad
+http://127.0.0.1:8000/docs
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | API information |
+| GET | `/health` | Health check |
+| GET | `/tasks` | Get all tasks |
+| GET | `/tasks/{id}` | Get one task |
+| POST | `/tasks` | Create a task |
+| PUT | `/tasks/{id}` | Update a task |
+| DELETE | `/tasks/{id}` | Delete a task |
+
+<img width="1494" height="593" alt="image" src="https://github.com/user-attachments/assets/dd2e4e93-2265-453c-8ceb-13466d12df5a" />
